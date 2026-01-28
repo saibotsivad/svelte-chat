@@ -120,6 +120,7 @@
 	}
 
 	.bubble {
+		position: relative;
 		padding: 8px 12px;
 		color: var(--sc-bubble-text, #555);
 		background: var(--sc-bubble-bg, #fff);
@@ -128,10 +129,48 @@
 		word-break: break-word;
 	}
 
+	.bubble::after {
+		content: '';
+		position: absolute;
+		bottom: 8px;
+		left: -6px;
+		width: 0;
+		height: 0;
+		border-top: 6px solid transparent;
+		border-bottom: 6px solid transparent;
+		border-right: 6px solid var(--sc-bubble-bg, #fff);
+	}
+
+	.bubble::before {
+		content: '';
+		position: absolute;
+		bottom: 7px;
+		left: -8px;
+		width: 0;
+		height: 0;
+		border-top: 7px solid transparent;
+		border-bottom: 7px solid transparent;
+		border-right: 7px solid var(--sc-bubble-border, #e0e0e0);
+	}
+
 	.message.own .bubble {
 		color: var(--sc-bubble-self-text, #fff);
 		background: var(--sc-bubble-self-bg, #0b93f6);
 		border-color: var(--sc-bubble-self-border, #0b93f6);
+	}
+
+	.message.own .bubble::after {
+		left: auto;
+		right: -6px;
+		border-right: none;
+		border-left: 6px solid var(--sc-bubble-self-bg, #0b93f6);
+	}
+
+	.message.own .bubble::before {
+		left: auto;
+		right: -8px;
+		border-right: none;
+		border-left: 7px solid var(--sc-bubble-self-border, #0b93f6);
 	}
 
 	.sender {
