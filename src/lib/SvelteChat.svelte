@@ -89,7 +89,6 @@
 			sans-serif;
 		font-size: 14px;
 		background: var(--sc-bg, #f8f9fa);
-		color: var(--sc-text, #1a1a1a);
 	}
 
 	.messages {

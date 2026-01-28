@@ -100,60 +100,28 @@ This is a demo place to make sure the chat component looks and behaves correctly
 
 <style>
 	/* ---------- Color Scheme ---------- */
-	:global(html[data-theme='dark']) {
-		color-scheme: dark;
-	}
-	:global(html[data-theme='light']) {
-		color-scheme: light;
-	}
 	:root {
-		color-scheme: light dark;
-		--sc-bg: #0d2d4e;
+		--sc-bg: #0a3d71;
 
-		--sc-bubble-text: #1a1a1a;
-		--sc-bubble-bg: #fff;
-		--sc-bubble-border: #e615e2;
+		--sc-bubble-text: #ffffff;
+		--sc-bubble-bg: #000000;
+		--sc-bubble-border: #4e4e4e;
 
-		--sc-bubble-self-text: #fff;
-		--sc-bubble-self-bg: #0b93f6;
-		--sc-bubble-self-border: #e0e0e0;
+		--sc-bubble-self-text: #ffffff;
+		--sc-bubble-self-bg: #001442;
+		--sc-bubble-self-border: #696868;
 
-		--sc-status: #e1dfdf;
-		--sc-status-read: #53fe5f;
-		--sc-status-error: #ff0000;
+		--sc-status: #878787;
+		--sc-status-read: #17a6ff;
+		--sc-status-error: #ff4069;
 
-		--sc-footer-border: rgb(255, 85, 255);
-		--sc-footer-bg: #ffbfbf;
+		--sc-footer-bg: #001442;
+		--sc-footer-border: #696868;
 
-		--sc-input-border: #e600ff;
-		--sc-input-focus-border: #37dd37;
-		--sc-button-bg: #0b93f6;
-		--sc-button-text: #fffaaa;
-	}
-	@media (prefers-color-scheme: dark) {
-		:root {
-			--sc-bg: #0d2d4e;
-
-			--sc-bubble-text: #1a1a1a;
-			--sc-bubble-bg: #fff;
-			--sc-bubble-border: #e615e2;
-
-			--sc-bubble-self-text: #fff;
-			--sc-bubble-self-bg: #0b93f6;
-			--sc-bubble-self-border: #e0e0e0;
-
-			--sc-status: #e1dfdf;
-			--sc-status-read: #53fe5f;
-			--sc-status-error: #ff0000;
-
-			--sc-footer-border: rgb(255, 85, 255);
-			--sc-footer-bg: #ffbfbf;
-
-			--sc-input-border: #e600ff;
-			--sc-input-focus-border: #37dd37;
-			--sc-button-bg: #0b93f6;
-			--sc-button-text: #fffaaa;
-		}
+		--sc-input-border: #696868;
+		--sc-input-focus-border: #17a6ff;
+		--sc-button-bg: #17a6ff;
+		--sc-button-text: #ffffff;
 	}
 
 	/* ---------- Demo Styles ---------- */
@@ -227,6 +195,10 @@ This is a demo place to make sure the chat component looks and behaves correctly
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	section {
+		margin-bottom: 32px;
 	}
 
 	.empty {
