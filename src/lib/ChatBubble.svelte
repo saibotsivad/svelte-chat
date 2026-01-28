@@ -34,30 +34,70 @@
 						</svg>
 					</span>
 				{:else if message.status === 'sent'}
-					<span class="status-icon" title="Sent">
+					<span class="status-icon sent" title="Sent">
 						<svg viewBox="0 0 16 16" width="16" height="16">
-							<path d="M4 8.5 L6.5 11 L12 5" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+							<path
+								d="M4 8.5 L6.5 11 L12 5"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
 						</svg>
 					</span>
 				{:else if message.status === 'delivered'}
-					<span class="status-icon" title="Delivered">
+					<span class="status-icon delivered" title="Delivered">
 						<svg viewBox="0 0 20 16" width="20" height="16">
-							<path d="M4 8.5 L6.5 11 L12 5" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-							<path d="M8 8.5 L10.5 11 L16 5" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+							<path
+								d="M4 8.5 L6.5 11 L12 5"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+							<path
+								d="M8 8.5 L10.5 11 L16 5"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
 						</svg>
 					</span>
 				{:else if message.status === 'read'}
-					<span class="status-icon" title="Read">
+					<span class="status-icon read" title="Read">
 						<svg viewBox="0 0 20 16" width="20" height="16">
-							<path d="M4 8.5 L6.5 11 L12 5" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-							<path d="M8 8.5 L10.5 11 L16 5" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+							<path
+								d="M4 8.5 L6.5 11 L12 5"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+							<path
+								d="M8 8.5 L10.5 11 L16 5"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.8"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
 						</svg>
 					</span>
 				{:else if message.status === 'error'}
 					<span class="status-icon error" title="Failed to send">
 						<svg viewBox="0 0 16 16" width="16" height="16">
 							<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5" />
-							<path d="M8 4.5 L8 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<path
+								d="M8 4.5 L8 9"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linecap="round"
+							/>
 							<circle cx="8" cy="11.5" r="0.8" fill="currentColor" />
 						</svg>
 					</span>
@@ -81,16 +121,17 @@
 
 	.bubble {
 		padding: 8px 12px;
+		color: var(--sc-bubble-text, #555);
+		background: var(--sc-bubble-bg, #fff);
+		border: 1px solid var(--sc-bubble-border, #e0e0e0);
 		border-radius: 12px;
-		background: #fff;
-		border: 1px solid #e0e0e0;
 		word-break: break-word;
 	}
 
 	.message.own .bubble {
-		background: #0b93f6;
-		color: #fff;
-		border-color: #0b93f6;
+		color: var(--sc-bubble-self-text, #fff);
+		background: var(--sc-bubble-self-bg, #0b93f6);
+		border-color: var(--sc-bubble-self-border, #0b93f6);
 	}
 
 	.sender {
@@ -98,7 +139,6 @@
 		font-size: 12px;
 		font-weight: 600;
 		margin-bottom: 2px;
-		color: #555;
 	}
 
 	.text {
@@ -117,12 +157,23 @@
 	}
 
 	.status-icon {
+		width: 24px;
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		line-height: 0;
 	}
 
+	.status-icon.sent,
+	.status-icon.delivered {
+		color: var(--sc-status, #999);
+	}
+
+	.status-icon.read {
+		color: var(--sc-status-read, #3b82f6);
+	}
+
 	.status-icon.error {
-		color: #e53e3e;
+		color: var(--sc-status-error, #e53e3e);
 	}
 </style>

@@ -81,11 +81,8 @@ This is a demo place to make sure the chat component looks and behaves correctly
 			{#if lastOwnMessage}
 				<p class="preview">"{lastOwnMessage.message}"</p>
 				<div class="tab-bar">
-					{#each statusValues as value}
-						<button
-							class:active={lastOwnMessage.status === value}
-							onclick={() => setStatus(value)}
-						>
+					{#each statusValues as value (value)}
+						<button class:active={lastOwnMessage.status === value} onclick={() => setStatus(value)}>
 							{statusLabel(value)}
 						</button>
 					{/each}
@@ -102,6 +99,64 @@ This is a demo place to make sure the chat component looks and behaves correctly
 </div>
 
 <style>
+	/* ---------- Color Scheme ---------- */
+	:global(html[data-theme='dark']) {
+		color-scheme: dark;
+	}
+	:global(html[data-theme='light']) {
+		color-scheme: light;
+	}
+	:root {
+		color-scheme: light dark;
+		--sc-bg: #0d2d4e;
+
+		--sc-bubble-text: #1a1a1a;
+		--sc-bubble-bg: #fff;
+		--sc-bubble-border: #e615e2;
+
+		--sc-bubble-self-text: #fff;
+		--sc-bubble-self-bg: #0b93f6;
+		--sc-bubble-self-border: #e0e0e0;
+
+		--sc-status: #e1dfdf;
+		--sc-status-read: #53fe5f;
+		--sc-status-error: #ff0000;
+
+		--sc-footer-border: rgb(255, 85, 255);
+		--sc-footer-bg: #ffbfbf;
+
+		--sc-input-border: #e600ff;
+		--sc-input-focus-border: #37dd37;
+		--sc-button-bg: #0b93f6;
+		--sc-button-text: #fffaaa;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--sc-bg: #0d2d4e;
+
+			--sc-bubble-text: #1a1a1a;
+			--sc-bubble-bg: #fff;
+			--sc-bubble-border: #e615e2;
+
+			--sc-bubble-self-text: #fff;
+			--sc-bubble-self-bg: #0b93f6;
+			--sc-bubble-self-border: #e0e0e0;
+
+			--sc-status: #e1dfdf;
+			--sc-status-read: #53fe5f;
+			--sc-status-error: #ff0000;
+
+			--sc-footer-border: rgb(255, 85, 255);
+			--sc-footer-bg: #ffbfbf;
+
+			--sc-input-border: #e600ff;
+			--sc-input-focus-border: #37dd37;
+			--sc-button-bg: #0b93f6;
+			--sc-button-text: #fffaaa;
+		}
+	}
+
+	/* ---------- Demo Styles ---------- */
 	:global(html, body) {
 		margin: 0;
 		padding: 0;

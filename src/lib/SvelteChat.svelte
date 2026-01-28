@@ -83,10 +83,13 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 		font-size: 14px;
-		background: #f8f9fa;
-		color: #1a1a1a;
+		background: var(--sc-bg, #f8f9fa);
+		color: var(--sc-text, #1a1a1a);
 	}
 
 	.messages {
@@ -100,7 +103,7 @@
 
 	.loading {
 		text-align: center;
-		color: #888;
+		color: var(--sc-muted, #888);
 		padding: 24px;
 	}
 </style>

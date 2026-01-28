@@ -42,7 +42,13 @@
 	})
 </script>
 
-<form class="input-area" onsubmit={(e) => { e.preventDefault(); handleSend() }}>
+<form
+	class="input-area"
+	onsubmit={(e) => {
+		e.preventDefault()
+		handleSend()
+	}}
+>
 	<textarea
 		bind:this={inputEl}
 		bind:value={inputText}
@@ -59,14 +65,14 @@
 		display: flex;
 		gap: 8px;
 		padding: 12px 16px;
-		border-top: 1px solid #e0e0e0;
-		background: #fff;
+		border-top: 1px solid var(--sc-footer-border, #e0e0e0);
+		background: var(--sc-footer-bg, #fff);
 	}
 
 	textarea {
 		flex: 1;
 		resize: none;
-		border: 1px solid #d0d0d0;
+		border: 1px solid var(--sc-input-border, #d0d0d0);
 		border-radius: 8px;
 		padding: 8px 12px;
 		font: inherit;
@@ -76,7 +82,7 @@
 	}
 
 	textarea:focus {
-		border-color: #0b93f6;
+		border-color: var(--sc-input-focus-border, #0b93f6);
 	}
 
 	button {
@@ -84,8 +90,8 @@
 		padding: 8px 16px;
 		border: none;
 		border-radius: 8px;
-		background: #0b93f6;
-		color: #fff;
+		background: var(--sc-button-bg, #0b93f6);
+		color: var(--sc-button-text, #fff);
 		font: inherit;
 		font-weight: 600;
 		cursor: pointer;
