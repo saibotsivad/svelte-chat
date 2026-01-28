@@ -6,6 +6,7 @@ export interface ChatMessage {
 	sent: Date
 	received?: Date
 	message: string
+	status?: 'sending' | 'sent' | 'error'
 }
 
 export { SvelteChat }
