@@ -62,15 +62,13 @@ This is a demo place to make sure the chat component looks and behaves correctly
 		}, 800)
 	}
 
-	function cycleStatus() {
+	function setStatus(value: ChatMessage['status']) {
 		if (!lastOwnMessage) return
-		const current = lastOwnMessage.status
-		const idx = statusValues.indexOf(current)
-		lastOwnMessage.status = statusValues[(idx + 1) % statusValues.length]
+		lastOwnMessage.status = value
 	}
 
-	function statusLabel(status: ChatMessage['status']): string {
-		return status ?? 'none'
+	function statusLabel(value: ChatMessage['status']): string {
+		return value ?? 'none'
 	}
 </script>
 
@@ -82,12 +80,16 @@ This is a demo place to make sure the chat component looks and behaves correctly
 			<h3>Last Sent Message</h3>
 			{#if lastOwnMessage}
 				<p class="preview">"{lastOwnMessage.message}"</p>
-				<label>
-					Status
-					<button onclick={cycleStatus}>
-						{statusLabel(lastOwnMessage.status)}
-					</button>
-				</label>
+				<div class="tab-bar">
+					{#each statusValues as value}
+						<button
+							class:active={lastOwnMessage.status === value}
+							onclick={() => setStatus(value)}
+						>
+							{statusLabel(value)}
+						</button>
+					{/each}
+				</div>
 			{:else}
 				<p class="empty">No messages yet.</p>
 			{/if}
@@ -136,28 +138,31 @@ This is a demo place to make sure the chat component looks and behaves correctly
 		letter-spacing: 0.05em;
 	}
 
-	.settings label {
+	.tab-bar {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		font-size: 14px;
-		color: #333;
+		flex-wrap: wrap;
+		gap: 4px;
 	}
 
-	.settings button {
-		padding: 4px 12px;
+	.tab-bar button {
+		padding: 4px 10px;
 		border: 1px solid #d0d0d0;
 		border-radius: 6px;
 		background: #f5f5f5;
 		font: inherit;
-		font-size: 13px;
+		font-size: 12px;
 		cursor: pointer;
-		min-width: 80px;
-		text-align: center;
+		color: #555;
 	}
 
-	.settings button:hover {
+	.tab-bar button:hover {
 		background: #eee;
+	}
+
+	.tab-bar button.active {
+		background: #0b93f6;
+		border-color: #0b93f6;
+		color: #fff;
 	}
 
 	.preview {
