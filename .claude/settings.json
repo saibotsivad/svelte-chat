@@ -1,0 +1,39 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(npm run:*)",
+			"Bash(find:*)",
+			"Bash(git:*)",
+			"Bash(ls:*)",
+			"WebSearch",
+			"WebFetch(domain:svelte.dev)",
+			"WebFetch(domain:github.com)",
+			"Bash(cat:*)"
+		],
+		"deny": [
+			"Read(./.env)",
+			"Read(./.env.*)",
+			"Bash(rm:*)",
+			"Bash(curl:*)",
+			"Bash(git push:*)",
+			"Read(./.svelte-kit/**)",
+			"Read(./.wrangler/**)",
+			"Read(./dist/**)",
+			"Read(./node_modules/**)"
+		],
+		"defaultMode": "acceptEdits"
+	},
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Edit|Write",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "jq -r '.tool_input.file_path' | { read file_path; if echo \"$file_path\" | grep -q '\\.ts$'; then npx prettier --write \"$file_path\"; fi; }"
+					}
+				]
+			}
+		]
+	}
+}
