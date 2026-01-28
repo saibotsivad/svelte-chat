@@ -6,6 +6,7 @@
 
 	interface Props {
 		currentUser: string
+		messages?: ChatMessage[]
 		onSend?: (message: string) => void
 		onLoad?: () => Promise<ChatMessage[]> | ChatMessage[]
 		placeholder?: string
@@ -14,13 +15,12 @@
 
 	let {
 		currentUser,
+		messages = $bindable([]),
 		onSend,
 		onLoad,
 		placeholder = 'Type a message…',
 		class: className = '',
 	}: Props = $props()
-
-	let messages = $state<ChatMessage[]>([])
 	let loading = $state(false)
 	let messagesEl: HTMLElement
 

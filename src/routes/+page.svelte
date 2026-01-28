@@ -6,62 +6,59 @@ This is a demo place to make sure the chat component looks and behaves correctly
 <script lang="ts">
 	import { SvelteChat, type ChatMessage } from '$lib/index.js'
 
-	let chat: SvelteChat
-
 	const me = 'You'
 
-	const statusValues: Array<ChatMessage['status']> = [undefined, 'sending', 'sent', 'error']
+	const statusValues: Array<ChatMessage['status']> = [
+		undefined,
+		'sending',
+		'sent',
+		'delivered',
+		'read',
+		'error',
+	]
 
-	let allMessages = $state<ChatMessage[]>([])
-	let lastOwnMessage = $derived(allMessages.findLast((m) => m.sender === me) ?? null)
-
-	function onLoad(): ChatMessage[] {
-		const initial: ChatMessage[] = [
-			{
-				id: '1',
-				sender: 'Alice',
-				sent: new Date(Date.now() - 60000 * 5),
-				message: 'Hey! Welcome to the chat demo.',
-			},
-			{
-				id: '2',
-				sender: me,
-				sent: new Date(Date.now() - 60000 * 4),
-				message: 'Thanks! This looks great.',
-			},
-			{
-				id: '3',
-				sender: 'Alice',
-				sent: new Date(Date.now() - 60000 * 3),
-				message: 'Try sending a message — I\'ll reply automatically.',
-			},
-		]
-		allMessages.push(...initial)
-		return initial
-	}
+	let messages = $state<ChatMessage[]>([
+		{
+			id: '1',
+			sender: 'Alice',
+			sent: new Date(Date.now() - 60000 * 5),
+			message: 'Hey! Welcome to the chat demo.',
+		},
+		{
+			id: '2',
+			sender: me,
+			sent: new Date(Date.now() - 60000 * 4),
+			message: 'Thanks! This looks great.',
+			status: 'read',
+		},
+		{
+			id: '3',
+			sender: 'Alice',
+			sent: new Date(Date.now() - 60000 * 3),
+			message: "Try sending a message — I'll reply automatically.",
+		},
+	])
+	let lastOwnMessage = $derived(messages.findLast((m) => m.sender === me) ?? null)
 
 	let nextId = 100
 
 	function onSend(message: string) {
-		const msg: ChatMessage = {
+		messages.push({
 			id: String(nextId++),
 			sender: me,
 			sent: new Date(),
 			message,
-		}
-		allMessages.push(msg)
-		chat.pushMessage(msg)
+			status: 'sending',
+		})
 
 		// Simulate a reply
 		setTimeout(() => {
-			const reply: ChatMessage = {
+			messages.push({
 				id: String(nextId++),
 				sender: 'Alice',
 				sent: new Date(),
 				message: `You said: "${message}"`,
-			}
-			allMessages.push(reply)
-			chat.pushMessage(reply)
+			})
 		}, 800)
 	}
 
@@ -98,12 +95,7 @@ This is a demo place to make sure the chat component looks and behaves correctly
 	</aside>
 
 	<div class="chat-area">
-		<SvelteChat
-			bind:this={chat}
-			currentUser={me}
-			{onSend}
-			{onLoad}
-		/>
+		<SvelteChat bind:messages currentUser={me} {onSend} />
 	</div>
 </div>
 
@@ -112,12 +104,15 @@ This is a demo place to make sure the chat component looks and behaves correctly
 		margin: 0;
 		padding: 0;
 		height: 100%;
-		font-family: system-ui, -apple-system, sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			sans-serif;
 	}
 
 	.demo-layout {
 		display: grid;
-		grid-template-columns: 280px 1fr;
+		grid-template-columns: 1fr 28rem;
 		height: 100vh;
 	}
 

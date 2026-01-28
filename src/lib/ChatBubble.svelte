@@ -24,10 +24,44 @@
 		<p class="text">{message.message}</p>
 		<span class="meta">
 			<time>{formatTime(message.sent)}</time>
-			{#if message.status === 'sending'}
-				<span class="status">…</span>
-			{:else if message.status === 'error'}
-				<span class="status error">!</span>
+			{#if own}
+				{#if message.status === 'sending'}
+					<span class="status-icon" title="Sending">
+						<svg viewBox="0 0 16 16" width="16" height="16">
+							<circle cx="4" cy="8" r="1.2" fill="currentColor" opacity="0.4" />
+							<circle cx="8" cy="8" r="1.2" fill="currentColor" opacity="0.6" />
+							<circle cx="12" cy="8" r="1.2" fill="currentColor" opacity="0.8" />
+						</svg>
+					</span>
+				{:else if message.status === 'sent'}
+					<span class="status-icon" title="Sent">
+						<svg viewBox="0 0 16 16" width="16" height="16">
+							<path d="M4 8.5 L6.5 11 L12 5" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+					</span>
+				{:else if message.status === 'delivered'}
+					<span class="status-icon" title="Delivered">
+						<svg viewBox="0 0 20 16" width="20" height="16">
+							<path d="M4 8.5 L6.5 11 L12 5" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+							<path d="M8 8.5 L10.5 11 L16 5" fill="none" stroke="#999" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+					</span>
+				{:else if message.status === 'read'}
+					<span class="status-icon" title="Read">
+						<svg viewBox="0 0 20 16" width="20" height="16">
+							<path d="M4 8.5 L6.5 11 L12 5" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+							<path d="M8 8.5 L10.5 11 L16 5" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+					</span>
+				{:else if message.status === 'error'}
+					<span class="status-icon error" title="Failed to send">
+						<svg viewBox="0 0 16 16" width="16" height="16">
+							<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+							<path d="M8 4.5 L8 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+							<circle cx="8" cy="11.5" r="0.8" fill="currentColor" />
+						</svg>
+					</span>
+				{/if}
 			{/if}
 		</span>
 	</div>
@@ -74,6 +108,7 @@
 
 	.meta {
 		display: flex;
+		align-items: center;
 		justify-content: flex-end;
 		gap: 4px;
 		margin-top: 4px;
@@ -81,8 +116,13 @@
 		opacity: 0.7;
 	}
 
-	.status.error {
+	.status-icon {
+		display: flex;
+		align-items: center;
+		line-height: 0;
+	}
+
+	.status-icon.error {
 		color: #e53e3e;
-		font-weight: 700;
 	}
 </style>
