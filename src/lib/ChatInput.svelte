@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
+	import { onMount, tick } from 'svelte'
 
 	interface Props {
 		onSend?: (message: string) => void
@@ -9,15 +9,23 @@
 	let { onSend, placeholder = 'Type a message…' }: Props = $props()
 
 	let inputText = $state('')
-	let inputEl: HTMLTextAreaElement
+	let inputElement: HTMLTextAreaElement
 
 	function handleSend() {
 		const text = inputText.trim()
 		if (!text) return
 		inputText = ''
 		onSend?.(text)
-		resizeInput()
-		inputEl?.focus()
+		inputElement?.focus()
+		tick().then(() => {
+			handleGrow()
+		})
+	}
+
+	function handleGrow() {
+		if (inputElement?.parentNode) {
+			;(inputElement.parentNode as HTMLElement).dataset.replicatedValue = inputElement.value
+		}
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -27,18 +35,12 @@
 		}
 	}
 
-	function resizeInput() {
-		if (!inputEl) return
-		inputEl.style.height = 'auto'
-		inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px'
-	}
-
 	export function focus() {
-		inputEl?.focus()
+		inputElement?.focus()
 	}
 
 	onMount(() => {
-		inputEl?.focus()
+		inputElement?.focus()
 	})
 </script>
 
@@ -49,14 +51,17 @@
 		handleSend()
 	}}
 >
-	<textarea
-		bind:this={inputEl}
-		bind:value={inputText}
-		oninput={resizeInput}
-		onkeydown={handleKeydown}
-		{placeholder}
-		rows="1"
-	></textarea>
+	<div class="grow-wrap">
+		<textarea
+			id="chat-input"
+			bind:this={inputElement}
+			bind:value={inputText}
+			onkeydown={handleKeydown}
+			{placeholder}
+			rows="1"
+			oninput={handleGrow}
+		></textarea>
+	</div>
 	<button type="submit" disabled={!inputText.trim()}>Send</button>
 </form>
 
@@ -70,7 +75,6 @@
 	}
 
 	textarea {
-		flex: 1;
 		resize: none;
 		border: 1px solid var(--sc-input-border, #d0d0d0);
 		border-radius: 8px;
@@ -84,6 +88,39 @@
 	textarea:focus {
 		border-color: var(--sc-input-focus-border, #0b93f6);
 	}
+
+	/* START----------
+	https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/
+	*/
+	.grow-wrap {
+		flex: 1;
+		/* easy way to plop the elements on top of each other and have them both sized based on the tallest one's height */
+		display: grid;
+	}
+	.grow-wrap::after {
+		/* Note the weird space! Needed to preventy jumpy behavior */
+		content: attr(data-replicated-value) ' ';
+		/* This is how textarea text behaves */
+		white-space: pre-wrap;
+		/* Hidden from view, clicks, and screen readers */
+		visibility: hidden;
+	}
+	.grow-wrap > textarea {
+		/* You could leave this, but after a user resizes, then it ruins the auto sizing */
+		resize: none;
+		/* Firefox shows scrollbar on growth, you can hide like this. */
+		overflow: hidden;
+	}
+	.grow-wrap > textarea,
+	.grow-wrap::after {
+		/* Identical styling required!! */
+		border: 1px solid black;
+		padding: 0.5rem;
+		font: inherit;
+		/* Place on top of each other */
+		grid-area: 1 / 1 / 2 / 2;
+	}
+	/* END---------- */
 
 	button {
 		align-self: flex-end;

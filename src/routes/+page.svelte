@@ -144,7 +144,11 @@ This is a demo place to make sure the chat component looks and behaves correctly
 	}
 
 	function onMessageVisible(message: ChatMessage) {
-		console.log('Message visible:', message.localId, message.content.slice(0, 30))
+		console.log(
+			'Message visible, e.g. send read receipt:',
+			message.localId,
+			message.content.slice(0, 30),
+		)
 	}
 </script>
 
