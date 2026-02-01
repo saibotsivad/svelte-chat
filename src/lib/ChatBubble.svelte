@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ChatMessage } from './index.js'
+	import type { ChatMessage } from './types.ts'
 
 	interface Props {
 		message: ChatMessage
@@ -8,11 +8,23 @@
 
 	let { message, own }: Props = $props()
 
+	let deliveryState = $derived<'sending' | 'sent' | 'received' | 'read'>(
+		message.readAt
+			? 'read'
+			: message.deliveredAt
+				? 'received'
+				: message.serverReceivedAt
+					? 'sent'
+					: 'sending',
+	)
+
 	function formatTime(date: Date): string {
-		return date.toLocaleTimeString(undefined, {
-			hour: 'numeric',
-			minute: '2-digit',
-		})
+		return (
+			date?.toLocaleTimeString(undefined, {
+				hour: 'numeric',
+				minute: '2-digit',
+			}) || ''
+		)
 	}
 </script>
 
@@ -21,11 +33,13 @@
 		{#if !own}
 			<span class="sender">{message.sender}</span>
 		{/if}
-		<p class="text">{message.message}</p>
+		<p class="text">
+			{message.content}{#if message.streaming}<span class="streaming-cursor"></span>{/if}
+		</p>
 		<span class="meta">
-			<time>{formatTime(message.sent)}</time>
+			<time>{formatTime(message.sentAt)}</time>
 			{#if own}
-				{#if message.status === 'sending'}
+				{#if deliveryState === 'sending'}
 					<span class="status-icon" title="Sending">
 						<svg viewBox="0 0 16 16" width="16" height="16">
 							<circle cx="4" cy="8" r="1.2" fill="currentColor" opacity="0.4" />
@@ -33,7 +47,7 @@
 							<circle cx="12" cy="8" r="1.2" fill="currentColor" opacity="0.8" />
 						</svg>
 					</span>
-				{:else if message.status === 'sent'}
+				{:else if deliveryState === 'sent'}
 					<span class="status-icon sent" title="Sent">
 						<svg viewBox="0 0 16 16" width="16" height="16">
 							<path
@@ -46,8 +60,8 @@
 							/>
 						</svg>
 					</span>
-				{:else if message.status === 'delivered'}
-					<span class="status-icon delivered" title="Delivered">
+				{:else if deliveryState === 'received'}
+					<span class="status-icon received" title="Received">
 						<svg viewBox="0 0 20 16" width="20" height="16">
 							<path
 								d="M4 8.5 L6.5 11 L12 5"
@@ -67,7 +81,7 @@
 							/>
 						</svg>
 					</span>
-				{:else if message.status === 'read'}
+				{:else if deliveryState === 'read'}
 					<span class="status-icon read" title="Read">
 						<svg viewBox="0 0 20 16" width="20" height="16">
 							<path
@@ -88,19 +102,6 @@
 							/>
 						</svg>
 					</span>
-				{:else if message.status === 'error'}
-					<span class="status-icon error" title="Failed to send">
-						<svg viewBox="0 0 16 16" width="16" height="16">
-							<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5" />
-							<path
-								d="M8 4.5 L8 9"
-								stroke="currentColor"
-								stroke-width="1.5"
-								stroke-linecap="round"
-							/>
-							<circle cx="8" cy="11.5" r="0.8" fill="currentColor" />
-						</svg>
-					</span>
 				{/if}
 			{/if}
 		</span>
@@ -111,7 +112,6 @@
 	.message {
 		display: flex;
 		justify-content: flex-start;
-		max-width: 80%;
 	}
 
 	.message.own {
@@ -120,6 +120,7 @@
 	}
 
 	.bubble {
+		max-width: 80%;
 		position: relative;
 		padding: 8px 12px;
 		color: var(--sc-bubble-text, #555);
@@ -204,7 +205,7 @@
 	}
 
 	.status-icon.sent,
-	.status-icon.delivered {
+	.status-icon.received {
 		color: var(--sc-status, #999);
 	}
 
@@ -212,7 +213,23 @@
 		color: var(--sc-status-read, #3b82f6);
 	}
 
-	.status-icon.error {
-		color: var(--sc-status-error, #e53e3e);
+	.streaming-cursor {
+		display: inline-block;
+		width: 2px;
+		height: 1em;
+		background: currentColor;
+		margin-left: 2px;
+		vertical-align: text-bottom;
+		animation: blink 1s step-end infinite;
+	}
+
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0;
+		}
 	}
 </style>

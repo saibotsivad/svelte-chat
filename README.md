@@ -2,6 +2,8 @@
 
 A fully featured chat component to plug and play into your apps.
 
+Currently focused on bot:user comms, but hoping to add support for mult-user/group chat eventually.
+
 ```svelte
 <script lang="ts">
 	import { SvelteChat } from '@saibotsivad/svelte-chat'

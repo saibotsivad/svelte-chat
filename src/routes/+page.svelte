@@ -4,71 +4,147 @@ This is a demo place to make sure the chat component looks and behaves correctly
 
 -->
 <script lang="ts">
-	import { SvelteChat, type ChatMessage } from '$lib/index.js'
+	import { SvelteChat, type ChatMessage, type ActivityStatus } from '$lib/index.js'
 
-	const me = 'You'
+	const deliveryStateValues = ['sending', 'sent', 'received', 'read'] as const
+	let currentDeliveryState = $state<'sending' | 'sent' | 'received' | 'read'>('read')
 
-	const statusValues: Array<ChatMessage['status']> = [
-		undefined,
-		'sending',
-		'sent',
-		'delivered',
-		'read',
-		'error',
-	]
+	const activityStatusOptions = ['none', 'typing', 'thinking', 'searching']
 
 	let messages = $state<ChatMessage[]>([
 		{
-			id: '1',
-			sender: 'Alice',
-			sent: new Date(Date.now() - 60000 * 5),
-			message: 'Hey! Welcome to the chat demo.',
+			localId: '1',
+			messageId: 'msg-1',
+			sender: 'bot',
+			content: 'Hey! Welcome to the chat demo.',
+			sentAt: new Date(Date.now() - 60000 * 5),
+			serverReceivedAt: new Date(Date.now() - 60000 * 5),
+			deliveredAt: new Date(Date.now() - 60000 * 5),
+			readAt: new Date(Date.now() - 60000 * 5),
+			streaming: false,
 		},
 		{
-			id: '2',
-			sender: me,
-			sent: new Date(Date.now() - 60000 * 4),
-			message: 'Thanks! This looks great.',
-			status: 'read',
+			localId: '2',
+			messageId: 'msg-2',
+			sender: 'user',
+			content: 'Thanks! This looks great.',
+			sentAt: new Date(Date.now() - 60000 * 4),
+			serverReceivedAt: new Date(Date.now() - 60000 * 4),
+			deliveredAt: new Date(Date.now() - 60000 * 4),
+			readAt: new Date(Date.now() - 60000 * 4),
+			streaming: false,
 		},
 		{
-			id: '3',
-			sender: 'Alice',
-			sent: new Date(Date.now() - 60000 * 3),
-			message: "Try sending a message — I'll reply automatically.",
+			localId: '3',
+			messageId: 'msg-3',
+			sender: 'bot',
+			content: "Try sending a message — I'll reply automatically.",
+			sentAt: new Date(Date.now() - 60000 * 3),
+			serverReceivedAt: new Date(Date.now() - 60000 * 3),
+			deliveredAt: new Date(Date.now() - 60000 * 3),
+			readAt: new Date(Date.now() - 60000 * 3),
+			streaming: false,
 		},
 	])
-	let lastOwnMessage = $derived(messages.findLast((m) => m.sender === me) ?? null)
+	let lastOwnMessage = $derived(messages.findLast((m) => m.sender === 'user') ?? null)
+	let activityStatus = $state<ActivityStatus | null>(null)
+	let streamingReplyId = $state<string | null>(null)
 
 	let nextId = 100
 
-	function onSend(message: string) {
+	function onSend(content: string) {
+		const localId = String(nextId++)
 		messages.push({
-			id: String(nextId++),
-			sender: me,
-			sent: new Date(),
-			message,
-			status: 'sending',
+			localId,
+			messageId: null,
+			sender: 'user',
+			content,
+			sentAt: new Date(),
+			streaming: false,
 		})
 
-		// Simulate a reply
+		// Simulate message being sent
 		setTimeout(() => {
+			const msg = messages.find((m) => m.localId === localId)
+			if (msg) {
+				msg.serverReceivedAt = new Date()
+				msg.messageId = `msg-${localId}`
+			}
+		}, 300)
+
+		// Simulate bot typing
+		setTimeout(() => {
+			activityStatus = { sender: 'bot', status: 'typing' }
+		}, 500)
+
+		// Simulate a streaming reply
+		setTimeout(() => {
+			activityStatus = null
+			const replyId = String(nextId++)
+			streamingReplyId = replyId
 			messages.push({
-				id: String(nextId++),
-				sender: 'Alice',
-				sent: new Date(),
-				message: `You said: "${message}"`,
+				localId: replyId,
+				messageId: `msg-${replyId}`,
+				sender: 'bot',
+				sentAt: new Date(),
+				content: '',
+				streaming: true,
 			})
-		}, 800)
+
+			// Simulate streaming chunks
+			const fullReply = `You said: "${content}"`
+			let charIndex = 0
+			const interval = setInterval(() => {
+				const msg = messages.find((m) => m.localId === replyId)
+				if (msg && charIndex < fullReply.length) {
+					msg.content = fullReply.slice(0, ++charIndex)
+				} else {
+					clearInterval(interval)
+					if (msg) {
+						msg.streaming = false
+					}
+					streamingReplyId = null
+				}
+			}, 30)
+		}, 1200)
 	}
 
-	function setStatus(value: ChatMessage['status']) {
+	function setDeliveryState(value: 'sending' | 'sent' | 'received' | 'read') {
 		if (!lastOwnMessage) return
-		lastOwnMessage.status = value
+		currentDeliveryState = value
+		if (value === 'sending') {
+			lastOwnMessage.sentAt = new Date()
+			lastOwnMessage.serverReceivedAt = undefined
+			lastOwnMessage.deliveredAt = undefined
+			lastOwnMessage.readAt = undefined
+		} else if (value === 'sent') {
+			lastOwnMessage.sentAt = new Date()
+			lastOwnMessage.serverReceivedAt = new Date()
+			lastOwnMessage.deliveredAt = undefined
+			lastOwnMessage.readAt = undefined
+		} else if (value === 'received') {
+			lastOwnMessage.sentAt = new Date()
+			lastOwnMessage.serverReceivedAt = new Date()
+			lastOwnMessage.deliveredAt = new Date()
+			lastOwnMessage.readAt = undefined
+		} else {
+			lastOwnMessage.sentAt = new Date()
+			lastOwnMessage.serverReceivedAt = new Date()
+			lastOwnMessage.deliveredAt = new Date()
+			lastOwnMessage.readAt = new Date()
+		}
 	}
 
-	function statusLabel(value: ChatMessage['status']): string {
-		return value ?? 'none'
+	function setActivityStatus(value: string) {
+		if (value === 'none') {
+			activityStatus = null
+		} else {
+			activityStatus = { sender: 'bot', status: value }
+		}
+	}
+
+	function onMessageVisible(message: ChatMessage) {
+		console.log('Message visible:', message.localId, message.content.slice(0, 30))
 	}
 </script>
 
@@ -79,11 +155,14 @@ This is a demo place to make sure the chat component looks and behaves correctly
 		<section>
 			<h3>Last Sent Message</h3>
 			{#if lastOwnMessage}
-				<p class="preview">"{lastOwnMessage.message}"</p>
+				<p class="preview">"{lastOwnMessage.content}"</p>
 				<div class="tab-bar">
-					{#each statusValues as value (value)}
-						<button class:active={lastOwnMessage.status === value} onclick={() => setStatus(value)}>
-							{statusLabel(value)}
+					{#each deliveryStateValues as value (value)}
+						<button
+							class:active={currentDeliveryState === value}
+							onclick={() => setDeliveryState(value)}
+						>
+							{value}
 						</button>
 					{/each}
 				</div>
@@ -91,10 +170,35 @@ This is a demo place to make sure the chat component looks and behaves correctly
 				<p class="empty">No messages yet.</p>
 			{/if}
 		</section>
+
+		<section>
+			<h3>Activity Status</h3>
+			<div class="tab-bar">
+				{#each activityStatusOptions as value (value)}
+					<button
+						class:active={value === 'none' ? !activityStatus : activityStatus?.status === value}
+						onclick={() => setActivityStatus(value)}
+					>
+						{value}
+					</button>
+				{/each}
+			</div>
+		</section>
+
+		<section>
+			<h3>Streaming</h3>
+			<p class="info">
+				{#if streamingReplyId}
+					Currently streaming message...
+				{:else}
+					Send a message to see streaming in action.
+				{/if}
+			</p>
+		</section>
 	</aside>
 
 	<div class="chat-area">
-		<SvelteChat bind:messages currentUser={me} {onSend} />
+		<SvelteChat bind:messages currentUser="user" {activityStatus} {onSend} {onMessageVisible} />
 	</div>
 </div>
 
@@ -138,7 +242,14 @@ This is a demo place to make sure the chat component looks and behaves correctly
 	.demo-layout {
 		display: grid;
 		grid-template-columns: 1fr 28rem;
+	}
+
+	.demo-layout,
+	.chat-area {
 		height: 100vh;
+	}
+	.settings {
+		overflow-y: scroll;
 	}
 
 	.settings {
@@ -201,7 +312,8 @@ This is a demo place to make sure the chat component looks and behaves correctly
 		margin-bottom: 32px;
 	}
 
-	.empty {
+	.empty,
+	.info {
 		font-size: 13px;
 		color: #999;
 	}
