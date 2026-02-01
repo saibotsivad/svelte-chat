@@ -1,2 +1,2 @@
-import SvelteChat from './SvelteChat.svelte';
-export { SvelteChat };
+import SvelteChat from './SvelteChat.svelte'
+export { SvelteChat }
