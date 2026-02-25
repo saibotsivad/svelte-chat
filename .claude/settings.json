@@ -5,6 +5,7 @@
 			"Bash(find:*)",
 			"Bash(git:*)",
 			"Bash(ls:*)",
+		"Bash(rm:*)",
 			"WebSearch",
 			"WebFetch(domain:svelte.dev)",
 			"WebFetch(domain:github.com)",
@@ -13,7 +14,6 @@
 		"deny": [
 			"Read(./.env)",
 			"Read(./.env.*)",
-			"Bash(rm:*)",
 			"Bash(curl:*)",
 			"Read(./.svelte-kit/**)",
 			"Read(./.wrangler/**)",
