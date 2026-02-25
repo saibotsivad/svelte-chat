@@ -1,0 +1,32 @@
+name: Cleanup Preview Branch
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete preview branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewBranch = `preview-${context.issue.number}`;
+            try {
+              await github.rest.git.deleteRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/${previewBranch}`,
+              });
+              console.log(`Deleted branch: ${previewBranch}`);
+            } catch (err) {
+              // Branch may not exist if the PR was closed before any preview was built.
+              if (err.status === 422) {
+                console.log(`Branch ${previewBranch} not found, nothing to delete.`);
+              } else {
+                throw err;
+              }
+            }

@@ -1,0 +1,77 @@
+name: Preview URL Comment
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: npm ci && npm run build:demo
+
+      - name: Push to preview branch
+        id: push-preview
+        run: |
+          PREVIEW_BRANCH="preview-${{ github.event.pull_request.number }}"
+          TMPDIR="$(mktemp -d)"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stash build output in temp, wipe the repo, move it back
+          mv demo "${TMPDIR}/demo"
+          git checkout --orphan $PREVIEW_BRANCH
+          rm -rf ./*
+          mv "${TMPDIR}/demo" demo
+
+          # Stage and commit
+          git add -A
+          git commit -m "Preview build for PR #${{ github.event.pull_request.number }} @ ${{ github.sha }}"
+
+          # Force push (replaces whatever was there before)
+          git push origin $PREVIEW_BRANCH --force
+
+          # Capture the SHA of the commit we just pushed — this is the SHA
+          # the Cloudflare Worker needs to fetch files from GitHub.
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Upsert Comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = '${{ steps.push-preview.outputs.sha }}';
+            const org = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.issue.number;
+            const baseUrl = 'https://forge-preview.saibotsivad.workers.dev';
+            const previewUrl = `${baseUrl}/${org}/${repo}/${sha}/demo/index.html`;
+            const marker = '<!-- preview-comment -->';
+            const body = `[View component previews](${previewUrl}) as of ${context.payload.pull_request.head.sha}\n${marker}`;
+            const comments = await github.rest.issues.listComments({
+              owner: org,
+              repo: repo,
+              issue_number: prNumber,
+            });
+            const existing = comments.data.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: org,
+                repo: repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: org,
+                repo: repo,
+                issue_number: prNumber,
+                body,
+              });
+            }
