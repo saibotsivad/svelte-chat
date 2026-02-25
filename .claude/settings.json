@@ -15,7 +15,6 @@
 			"Read(./.env.*)",
 			"Bash(rm:*)",
 			"Bash(curl:*)",
-			"Bash(git push:*)",
 			"Read(./.svelte-kit/**)",
 			"Read(./.wrangler/**)",
 			"Read(./dist/**)",
